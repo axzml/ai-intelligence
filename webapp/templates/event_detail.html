@@ -1,0 +1,97 @@
+{% set active_page = 'events' %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <a href="/events" class="inline-flex items-center text-gray-400 hover:text-blue-400 transition-colors mb-6">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        {{ t('back_to_events') }}
+    </a>
+
+    {% if event %}
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+        <div class="flex flex-wrap items-start gap-4 mb-6">
+            {% if event.score >= 9 %}
+            {% set score_color = 'bg-red-500/20 text-red-400 border-red-500/30' %}
+            {% elif event.score >= 7 %}
+            {% set score_color = 'bg-orange-500/20 text-orange-400 border-orange-500/30' %}
+            {% elif event.score >= 5 %}
+            {% set score_color = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' %}
+            {% else %}
+            {% set score_color = 'bg-gray-500/20 text-gray-400 border-gray-500/30' %}
+            {% endif %}
+
+            <span class="px-4 py-2 text-2xl font-bold {{ score_color }} border rounded-lg">{{ event.score }}</span>
+
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-white mb-3">{{ event.title }}</h1>
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="px-3 py-1 text-sm font-medium bg-blue-900 text-blue-300 rounded-full">{{ category_labels.get(event.category, event.category) }}</span>
+                    <span class="px-3 py-1 text-sm font-medium bg-purple-900 text-purple-300 rounded-full">{{ domain_labels.get(event.domain, event.domain) }}</span>
+                    <span class="text-sm text-gray-500">{{ event.created_at }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            {% if event.summary %}
+            <div>
+                <h2 class="text-lg font-semibold text-white mb-3">{{ t('summary') }}</h2>
+                <p class="text-gray-300 leading-relaxed">{{ event.summary }}</p>
+            </div>
+            {% endif %}
+
+            {% if event.impact %}
+            <div class="bg-orange-900/20 border border-orange-800/50 rounded-xl p-6">
+                <h2 class="text-lg font-semibold text-orange-400 mb-3">{{ t('impact_analysis') }}</h2>
+                <p class="text-gray-300 leading-relaxed">{{ event.impact }}</p>
+            </div>
+            {% endif %}
+
+            {% if event.sources %}
+            <div>
+                <h2 class="text-lg font-semibold text-white mb-3">{{ t('sources') }}</h2>
+                <ul class="space-y-2">
+                    {% for src in event.sources %}
+                    <li class="flex items-center gap-3">
+                        <span class="text-gray-400 text-sm font-medium">{{ src.platform }}</span>
+                        {% if src.url %}
+                        <a href="{{ src.url }}" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300 text-sm transition-colors truncate">{{ src.url }}</a>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if related_events %}
+    <div class="mt-8">
+        <h2 class="text-xl font-semibold text-white mb-4">{{ t('related_events') }}</h2>
+        <div class="space-y-2">
+            {% for r in related_events %}
+            <a href="/events/{{ r.id }}" class="block bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-bold text-gray-500">{{ r.score }}</span>
+                        <span class="text-gray-300">{{ r.title }}</span>
+                    </div>
+                    <span class="text-sm text-gray-500 flex-shrink-0">{{ r.created_at }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center">
+        <h3 class="text-xl text-white mb-2">{{ t('event_not_found') }}</h3>
+        <a href="/events" class="text-blue-400 hover:underline">{{ t('back_to_events') }}</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

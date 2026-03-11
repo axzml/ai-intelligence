@@ -1,0 +1,153 @@
+{
+  "official_blogs": [
+    {
+      "name": "Anthropic News (Community Feed)",
+      "url": "https://raw.githubusercontent.com/taobojlen/anthropic-rss-feed/main/anthropic_news_rss.xml",
+      "priority": "high",
+      "category_hint": "model_release",
+      "max_items": 5,
+      "note": "Anthropic has no official RSS; this is a community-maintained feed"
+    },
+    {
+      "name": "Anthropic Engineering (Community Feed)",
+      "url": "https://raw.githubusercontent.com/conoro/anthropic-engineering-rss-feed/main/anthropic_engineering_rss.xml",
+      "priority": "high",
+      "category_hint": "model_release",
+      "max_items": 5,
+      "note": "Community-maintained feed for Anthropic engineering blog"
+    },
+    {
+      "name": "Google AI Blog",
+      "url": "https://blog.google/technology/ai/rss/",
+      "priority": "high",
+      "category_hint": "model_release",
+      "max_items": 5
+    },
+    {
+      "name": "DeepMind Blog",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "priority": "high",
+      "category_hint": "paper",
+      "max_items": 5
+    },
+    {
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "priority": "medium",
+      "category_hint": "open_source_tool",
+      "max_items": 5
+    },
+    {
+      "name": "LangChain Blog",
+      "url": "https://blog.langchain.dev/rss/",
+      "priority": "medium",
+      "category_hint": "open_source_tool",
+      "max_items": 5
+    }
+  ],
+  "news_and_newsletters": [
+    {
+      "name": "The Batch (Andrew Ng)",
+      "url": "https://www.deeplearning.ai/the-batch/feed/",
+      "priority": "high",
+      "category_hint": "industry",
+      "max_items": 5
+    },
+    {
+      "name": "Import AI",
+      "url": "https://importai.substack.com/feed",
+      "priority": "high",
+      "category_hint": "industry",
+      "max_items": 3
+    },
+    {
+      "name": "TLDR AI",
+      "url": "https://tldr.tech/ai/rss",
+      "priority": "medium",
+      "category_hint": "industry",
+      "max_items": 5
+    },
+    {
+      "name": "Sebastian Raschka",
+      "url": "https://magazine.sebastianraschka.com/feed",
+      "priority": "medium",
+      "category_hint": "paper",
+      "max_items": 3
+    }
+  ],
+  "research": [
+    {
+      "name": "arXiv AI (cs.AI)",
+      "url": "https://rss.arxiv.org/rss/cs.AI",
+      "priority": "medium",
+      "category_hint": "paper",
+      "max_items": 10
+    },
+    {
+      "name": "arXiv LLM (cs.CL)",
+      "url": "https://rss.arxiv.org/rss/cs.CL",
+      "priority": "medium",
+      "category_hint": "paper",
+      "max_items": 10
+    },
+    {
+      "name": "Papers With Code",
+      "url": "https://paperswithcode.com/latest/feed",
+      "priority": "low",
+      "category_hint": "paper",
+      "max_items": 5
+    }
+  ],
+  "non_rss_sources": {
+    "hacker_news": {
+      "enabled": true,
+      "api_base": "https://hacker-news.firebaseio.com/v0",
+      "top_n": 50,
+      "max_items": 15,
+      "keywords": [
+        "AI", "LLM", "GPT", "Claude", "Gemini", "machine learning",
+        "neural", "transformer", "agent", "training",
+        "inference", "fine-tun", "benchmark", "open source",
+        "Anthropic", "OpenAI", "DeepMind", "Meta AI",
+        "Mistral", "DeepSeek", "LLaMA", "multimodal"
+      ]
+    },
+    "reddit": {
+      "enabled": false,
+      "subreddits": [
+        "MachineLearning",
+        "LocalLLaMA",
+        "artificial",
+        "ChatGPT",
+        "ClaudeAI",
+        "singularity"
+      ],
+      "sort": "hot",
+      "limit": 25
+    },
+    "x_twitter": {
+      "enabled": true,
+      "provider": "xpoz",
+      "max_items": 15,
+      "keywords": [
+        "AI breakthrough", "new model release", "open source LLM",
+        "AI agent framework", "AI safety regulation"
+      ],
+      "accounts": [
+        "AnthropicAI", "OpenAI", "GoogleDeepMind",
+        "AIatMeta", "huggingface",
+        "ylecun", "sama", "karpathy"
+      ]
+    },
+    "github_trending": {
+      "enabled": true,
+      "url": "https://github.com/trending?since=daily&spoken_language_code=en",
+      "max_items": 10,
+      "keywords": [
+        "ai", "llm", "gpt", "agent", "transformer", "diffusion",
+        "machine-learning", "deep-learning", "neural", "embedding",
+        "rag", "langchain", "vector", "multimodal", "fine-tuning"
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[Unit]
+Description=AI Intelligence Web App
+After=network.target
+
+[Service]
+Type=simple
+# TODO: 替换为你的实际用户名
+User=YOUR_USERNAME
+WorkingDirectory=/home/YOUR_USERNAME/ai-intelligence/webapp
+ExecStart=/home/YOUR_USERNAME/ai-intelligence/.venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8081
+Restart=always
+RestartSec=5
+Environment=PYTHONPATH=/home/YOUR_USERNAME/ai-intelligence
+
+[Install]
+WantedBy=multi-user.target

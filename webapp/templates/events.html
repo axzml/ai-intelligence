@@ -1,0 +1,129 @@
+{% set active_page = 'events' %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center gap-4">
+        <h1 class="text-3xl font-bold text-white">{{ t('events_title') }}</h1>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-600/20 text-blue-400 border border-blue-500/30">{{ total }} {{ t('total_label') }}</span>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+        <form method="GET" action="/events" class="space-y-4">
+            {% if lang != 'en' %}<input type="hidden" name="lang" value="{{ lang }}">{% endif %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{{ t('filter_category') }}</label>
+                    <select name="category" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">{{ t('all_option') }}</option>
+                        {% for k, v in category_labels.items() %}
+                        <option value="{{ k }}" {{ 'selected' if filters.get('category') == k }}>{{ v }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{{ t('filter_domain') }}</label>
+                    <select name="domain" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">{{ t('all_option') }}</option>
+                        {% for k, v in domain_labels.items() %}
+                        <option value="{{ k }}" {{ 'selected' if filters.get('domain') == k }}>{{ v }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{{ t('filter_score_min') }}</label>
+                    <input type="number" name="score_min" min="1" max="10" value="{{ filters.get('score_min', '') or '' }}" placeholder="1"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{{ t('filter_score_max') }}</label>
+                    <input type="number" name="score_max" min="1" max="10" value="{{ filters.get('score_max', '') or '' }}" placeholder="10"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{{ t('filter_from') }}</label>
+                    <input type="date" name="date_from" value="{{ filters.get('date_from', '') or '' }}"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{{ t('filter_to') }}</label>
+                    <input type="date" name="date_to" value="{{ filters.get('date_to', '') or '' }}"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{{ t('filter_search') }}</label>
+                    <input type="text" name="q" value="{{ filters.get('q', '') or '' }}" placeholder="{{ t('filter_keyword') }}"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">{{ t('btn_filter') }}</button>
+                <a href="/events" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition-colors">{{ t('btn_clear') }}</a>
+            </div>
+        </form>
+    </div>
+
+    {% if error %}
+    <div class="bg-red-900/30 border border-red-700 rounded-lg p-4">
+        <p class="text-red-400">{{ error }}</p>
+    </div>
+    {% endif %}
+
+    {% if events %}
+    <div class="bg-gray-900 rounded-xl border border-gray-800 divide-y divide-gray-800">
+        {% for event in events %}
+        <div class="p-4 hover:bg-gray-800/30 transition-colors">
+            <div class="flex items-start gap-4">
+                {% if event.score >= 8 %}
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/20 text-red-400 font-bold border border-red-500/30 flex-shrink-0">{{ event.score }}</span>
+                {% elif event.score >= 5 %}
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-yellow-500/20 text-yellow-400 font-bold border border-yellow-500/30 flex-shrink-0">{{ event.score }}</span>
+                {% else %}
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-600/20 text-gray-400 font-bold border border-gray-500/30 flex-shrink-0">{{ event.score }}</span>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <a href="/events/{{ event.id }}" class="text-white hover:text-blue-400 font-medium transition-colors">{{ event.title }}</a>
+                    <div class="flex flex-wrap items-center gap-2 mt-1">
+                        <span class="bg-blue-900 text-blue-300 px-2 py-0.5 rounded text-xs">{{ category_labels.get(event.category, event.category) }}</span>
+                        <span class="bg-purple-900 text-purple-300 px-2 py-0.5 rounded text-xs">{{ domain_labels.get(event.domain, event.domain) }}</span>
+                        <span class="text-gray-500 text-xs">{{ event.sources|length if event.sources is iterable and event.sources is not string else 0 }} {{ t('sources_count') }}</span>
+                        <span class="text-gray-600 text-xs">&middot;</span>
+                        <span class="text-gray-500 text-xs">{{ event.created_at }}</span>
+                    </div>
+                    {% if event.summary %}
+                    <p class="text-gray-400 text-sm mt-1 hidden md:block truncate">{{ event.summary[:120] }}{% if event.summary|length > 120 %}...{% endif %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-900 rounded-xl border border-gray-800 p-4">
+        <p class="text-gray-400 text-sm">{{ t('page_of', page=page, total_pages=total_pages, total=total) }}</p>
+        <div class="flex items-center gap-2">
+            {% if page > 1 %}
+            <a href="?page={{ page - 1 }}{% if lang != 'en' %}&lang={{ lang }}{% endif %}{% if filters.get('category') %}&category={{ filters.category }}{% endif %}{% if filters.get('domain') %}&domain={{ filters.domain }}{% endif %}{% if filters.get('score_min') %}&score_min={{ filters.score_min }}{% endif %}{% if filters.get('score_max') %}&score_max={{ filters.score_max }}{% endif %}{% if filters.get('q') %}&q={{ filters.q }}{% endif %}{% if filters.get('date_from') %}&date_from={{ filters.date_from }}{% endif %}{% if filters.get('date_to') %}&date_to={{ filters.date_to }}{% endif %}"
+               class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors">&laquo; {{ t('prev') }}</a>
+            {% endif %}
+            <span class="px-3 py-2 bg-blue-600 text-white rounded-lg font-medium">{{ page }}</span>
+            {% if page < total_pages %}
+            <a href="?page={{ page + 1 }}{% if lang != 'en' %}&lang={{ lang }}{% endif %}{% if filters.get('category') %}&category={{ filters.category }}{% endif %}{% if filters.get('domain') %}&domain={{ filters.domain }}{% endif %}{% if filters.get('score_min') %}&score_min={{ filters.score_min }}{% endif %}{% if filters.get('score_max') %}&score_max={{ filters.score_max }}{% endif %}{% if filters.get('q') %}&q={{ filters.q }}{% endif %}{% if filters.get('date_from') %}&date_from={{ filters.date_from }}{% endif %}{% if filters.get('date_to') %}&date_to={{ filters.date_to }}{% endif %}"
+               class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors">{{ t('next') }} &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-12 text-center">
+        <h3 class="text-xl font-medium text-white mb-2">{{ t('no_events_found') }}</h3>
+        <p class="text-gray-400 mb-6">{{ t('no_events_hint') }}</p>
+        <a href="/events" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">{{ t('reset_filters') }}</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

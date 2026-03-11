@@ -1,0 +1,54 @@
+{% set active_page = 'daily' %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <a href="/daily" class="inline-flex items-center text-gray-400 hover:text-blue-400 transition-colors mb-6">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        {{ t('back_to_daily') }}
+    </a>
+
+    {% if report %}
+    <h1 class="text-3xl font-bold text-white mb-6">{{ t('daily_report_title') }} &mdash; {{ report.report_date }}</h1>
+
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+            <p class="text-gray-400 text-sm">{{ t('col_collected') }}</p>
+            <p class="text-2xl font-bold text-white">{{ report.total_collected }}</p>
+        </div>
+        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+            <p class="text-gray-400 text-sm">{{ t('col_notable') }}</p>
+            <p class="text-2xl font-bold text-yellow-400">{{ report.total_notable }}</p>
+        </div>
+        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+            <p class="text-gray-400 text-sm">{{ t('col_critical') }}</p>
+            <p class="text-2xl font-bold text-red-400">{{ report.total_critical }}</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+        {% if report.content_html %}
+        <div class="prose prose-invert max-w-none">
+            {{ report.content_html|safe }}
+        </div>
+        {% elif report.content_text %}
+        <pre class="whitespace-pre-wrap text-gray-300 font-mono text-sm leading-relaxed">{{ report.content_text }}</pre>
+        {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-500 text-lg">{{ t('report_no_content') }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center">
+        <h3 class="text-xl text-white mb-2">{{ t('report_not_found') }}</h3>
+        <a href="/daily" class="text-blue-400 hover:underline">{{ t('back_to_daily') }}</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

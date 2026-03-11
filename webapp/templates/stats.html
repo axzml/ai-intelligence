@@ -1,0 +1,166 @@
+{% set active_page = 'stats' %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold text-white mb-6">{{ t('stats_title', days=days) }}</h1>
+
+    <!-- Days Selector -->
+    <div class="flex items-center gap-2 mb-8">
+        <span class="text-gray-400 mr-2">{{ t('time_range') }}</span>
+        {% for d in [7, 30, 90] %}
+        <a href="/stats?days={{ d }}{% if lang != 'en' %}&lang={{ lang }}{% endif %}"
+           class="px-4 py-2 rounded-lg font-medium transition-all {{ 'bg-blue-500 text-white' if days == d else 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700' }}">
+            {{ t('days_label', d=d) }}
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if error %}
+    <div class="bg-red-900/30 border border-red-700 rounded-lg p-4">
+        <p class="text-red-400">{{ error }}</p>
+    </div>
+    {% else %}
+
+    <!-- 2x2 Chart Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">{{ t('chart_daily_events') }}</h3>
+            <div class="h-64"><canvas id="dailyTrendChart"></canvas></div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">{{ t('chart_category') }}</h3>
+            <div class="h-64"><canvas id="categoryChart"></canvas></div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">{{ t('chart_domain') }}</h3>
+            <div class="h-64"><canvas id="domainChart"></canvas></div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">{{ t('chart_score') }}</h3>
+            <div class="h-64"><canvas id="scoreChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Source Distribution (Horizontal Bars) -->
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-white mb-6">{{ t('source_distribution') }}</h3>
+        {% set source_colors = ['bg-cyan-500', 'bg-purple-500', 'bg-emerald-500', 'bg-orange-500', 'bg-pink-500', 'bg-blue-500'] %}
+        {% set ns = namespace(total=0) %}
+        {% for item in stats.get('source_distribution', []) %}
+            {% set ns.total = ns.total + item.count %}
+        {% endfor %}
+        {% if ns.total > 0 %}
+        <div class="space-y-4">
+            {% for item in stats.get('source_distribution', []) %}
+            {% set pct = (item.count / ns.total * 100) | round(1) %}
+            <div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-gray-300 text-sm font-medium">{{ item.source }}</span>
+                    <span class="text-gray-400 text-sm">{{ item.count }} ({{ pct }}%)</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="{{ source_colors[loop.index0 % source_colors|length] }} h-3 rounded-full" style="width: {{ pct }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-4">{{ t('no_source_data') }}</p>
+        {% endif %}
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.borderColor = 'rgba(75, 85, 99, 0.3)';
+
+const palette = [
+    'rgba(6, 182, 212, 1)', 'rgba(168, 85, 247, 1)', 'rgba(16, 185, 129, 1)',
+    'rgba(249, 115, 22, 1)', 'rgba(236, 72, 153, 1)', 'rgba(59, 130, 246, 1)',
+    'rgba(234, 179, 8, 1)'
+];
+
+const dailyTrend = {{ stats.get('daily_trend', []) | tojson }};
+const categoryDist = {{ stats.get('category_distribution', []) | tojson }};
+const domainDist = {{ stats.get('domain_distribution', []) | tojson }};
+const scoreTrend = {{ stats.get('avg_score_trend', []) | tojson }};
+
+if (dailyTrend.length > 0) {
+    new Chart(document.getElementById('dailyTrendChart'), {
+        type: 'line',
+        data: {
+            labels: dailyTrend.map(d => d.date),
+            datasets: [{
+                label: 'Events',
+                data: dailyTrend.map(d => d.count),
+                borderColor: 'rgba(6, 182, 212, 1)',
+                backgroundColor: 'rgba(6, 182, 212, 0.15)',
+                fill: true, tension: 0.4,
+                pointRadius: 3, pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+        }
+    });
+}
+
+if (categoryDist.length > 0) {
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: categoryDist.map(d => d.category),
+            datasets: [{ data: categoryDist.map(d => d.count), backgroundColor: palette, borderColor: '#111827', borderWidth: 2 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { padding: 12, usePointStyle: true } } }
+        }
+    });
+}
+
+if (domainDist.length > 0) {
+    new Chart(document.getElementById('domainChart'), {
+        type: 'doughnut',
+        data: {
+            labels: domainDist.map(d => d.domain),
+            datasets: [{ data: domainDist.map(d => d.count), backgroundColor: palette, borderColor: '#111827', borderWidth: 2 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { padding: 12, usePointStyle: true } } }
+        }
+    });
+}
+
+if (scoreTrend.length > 0) {
+    new Chart(document.getElementById('scoreChart'), {
+        type: 'line',
+        data: {
+            labels: scoreTrend.map(d => d.date),
+            datasets: [{
+                label: 'Avg Score',
+                data: scoreTrend.map(d => d.avg_score),
+                borderColor: 'rgba(168, 85, 247, 1)',
+                backgroundColor: 'rgba(168, 85, 247, 0.15)',
+                fill: true, tension: 0.4,
+                pointRadius: 3, pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 10 }, x: { grid: { display: false } } }
+        }
+    });
+}
+</script>
+{% endblock %}

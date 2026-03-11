@@ -1,0 +1,57 @@
+{
+  "system": {
+    "base_dir": "~/ai-intelligence",
+    "db_path": "~/ai-intelligence/data/intelligence.db",
+    "log_dir": "~/ai-intelligence/logs",
+    "timezone": "Asia/Shanghai"
+  },
+  "scoring": {
+    "weights": {
+      "source_authority": 0.25,
+      "community_heat": 0.15,
+      "timeliness": 0.15,
+      "interest_match": 0.25,
+      "novelty": 0.20
+    },
+    "thresholds": {
+      "notify": 7,
+      "daily": 4,
+      "discard_below": 4
+    },
+    "user_interests": [
+      "大模型进展",
+      "Agent应用",
+      "AI商业化/赚钱",
+      "AI安全"
+    ]
+  },
+  "schedule": {
+    "frequency": "daily",
+    "collect_time": "17:00",
+    "analyze_time": "17:30",
+    "notify_time": "18:00",
+    "daily_report_time": "19:00",
+    "note": "Pipeline: collect(17:00) → analyze(17:30) → notify(18:00) → report(19:00)"
+  },
+  "notifications": {
+    "telegram": {
+      "enabled": true,
+      "note": "通过 OpenClaw 已绑定的 Telegram Bot 发送，无需额外配置"
+    },
+    "email": {
+      "enabled": true,
+      "provider": "resend",
+      "smtp_server": "smtp.resend.com",
+      "smtp_port": 465,
+      "smtp_security": "SSL",
+      "smtp_username": "resend",
+      "note": "Credentials stored in SQLite config table (resend_api_key, email_sender, email_recipient). Run: sqlite3 ~/ai-intelligence/data/intelligence.db \"SELECT key, value FROM config WHERE key LIKE 'resend%' OR key LIKE 'email%';\""
+    }
+  },
+  "webapp": {
+    "host": "127.0.0.1",
+    "port": 8080,
+    "domain": "your-domain.com",
+    "items_per_page": 20
+  }
+}
